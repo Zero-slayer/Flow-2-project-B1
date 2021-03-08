@@ -74,6 +74,7 @@ public class MessageSender implements Message{
         server.getAllClientHandlers().forEach((ID, ClientHandler) -> {
             try {
                 if (!ClientHandler.getSocket().isClosed()) {
+//                    System.out.println("i is currently: " + i);
                     if (ClientHandler.getCurrentUser().equals(users[i.get()])) {
                         i.incrementAndGet();
                         new PrintWriter(ClientHandler.getSocket().getOutputStream(), true)
