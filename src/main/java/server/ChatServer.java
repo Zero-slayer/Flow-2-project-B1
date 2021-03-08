@@ -23,7 +23,7 @@ public class ChatServer {
         return allClientHandlers;
     }
 
-    private void startserver(int port) throws IOException {
+    private void startServer(int port) throws IOException {
         serverSocket = new ServerSocket(port);
         System.out.println("Server started, listening on " +port);
 
@@ -33,32 +33,29 @@ public class ChatServer {
             System.out.println("New client connected");
 
             ClientHandler clientHandler = new ClientHandler(socket, this, users);
+            allClientHandlers.put(clientHandler.getMyId(), clientHandler);
 
+//            new Thread(new SendToClients(this, ))
+
+            new Thread(clientHandler).start();
         }
     }
 
     //Call server with arguments like this: 0.0.0.0 8088 logfile.log
     public static void main(String[] args) throws IOException {
-        String ip ="localhost";
         int port = 8088;
-        String logFile = "log.txt";  //Do we need this
 
-        try {
-            if (args.length == 3) {
-                ip = args[0];
-                port = Integer.parseInt(args[1]);
-                logFile = args[2];
+            if (args.length == 1) {
+                try {
+                    port = Integer.parseInt(args[0]);
+                } catch (NumberFormatException ne) {
+                    System.out.println("Illegal inputs provided when starting the server!");
+                    return;
+                }
             }
-            else {
-                throw new IllegalArgumentException("Server not provided with the right arguments");
-            }
-        } catch (NumberFormatException ne) {
-            System.out.println("Illegal inputs provided when starting the server!");
-            return;
-        }
 
         ChatServer server = new ChatServer();
-        server.startserver(port);
+        server.startServer(port);
 
     }
 

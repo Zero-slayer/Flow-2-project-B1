@@ -12,7 +12,8 @@ public class MessageSender implements Message{
     private ChatServer server;
     private Socket socket;
     private String currentUser;
-    private String output = "MESSAGE#" + currentUser + "#" + input;
+    private String input;
+    private String output;
 
     public MessageSender(ChatServer server,Socket socket, String currentUser) {
        this.socket = socket;
@@ -23,11 +24,12 @@ public class MessageSender implements Message{
     @Override
     public void sendMessage(String input) {
        //TODO search through all users and send the message
+        this.input = input;
         server.getAllClientHandlers().forEach((ID, ClientHandler) -> {
             try {
                 if (!ClientHandler.getSocket().isClosed())
                     new PrintWriter(ClientHandler.getSocket().getOutputStream(), true)
-                            .println(output);
+                            .println("MESSAGE#" + currentUser + "#" + input);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -37,8 +39,9 @@ public class MessageSender implements Message{
     @Override
     public void sendMessage(String input, String user) {
         //TODO print message to sender and receiver
+        this.input = input;
         try {
-            new PrintWriter(socket.getOutputStream(), true).println(output);
+            new PrintWriter(socket.getOutputStream(), true).println("MESSAGE#" + currentUser + "#" + input);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -47,7 +50,7 @@ public class MessageSender implements Message{
                 if (!ClientHandler.getSocket().isClosed()) {
                     if (ClientHandler.getCurrentUser().equals(user)) {
                         new PrintWriter(ClientHandler.getSocket().getOutputStream(), true)
-                                .println(output);
+                                .println("MESSAGE#" + currentUser + "#" + input);
                     }
                 }
             } catch (IOException e) {
@@ -59,11 +62,12 @@ public class MessageSender implements Message{
     @Override
     public void sendMessage(String input, String[] users) {
        //TODO print message to sender and receivers
+        this.input = input;
 
         AtomicInteger i = new AtomicInteger(0);
 
         try {
-            new PrintWriter(socket.getOutputStream(), true).println(output);
+            new PrintWriter(socket.getOutputStream(), true).println("MESSAGE#" + currentUser + "#" + input);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -73,9 +77,22 @@ public class MessageSender implements Message{
                     if (ClientHandler.getCurrentUser().equals(users[i.get()])) {
                         i.incrementAndGet();
                         new PrintWriter(ClientHandler.getSocket().getOutputStream(), true)
-                                .println(output);
+                                .println("MESSAGE#" + currentUser + "#" + input);
                     }
                 }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public void sendMessage(StringBuilder input) {
+        this.input = String.valueOf(input);
+        server.getAllClientHandlers().forEach((ID, ClientHandler) -> {
+            try {
+                if (!ClientHandler.getSocket().isClosed())
+                    new PrintWriter(ClientHandler.getSocket().getOutputStream(), true)
+                            .println(input);
             } catch (IOException e) {
                 e.printStackTrace();
             }

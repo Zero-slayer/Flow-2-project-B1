@@ -13,7 +13,7 @@ public class ClientHandler implements Runnable {
     private String currentUser;
 
     private Users users;
-    private MessageSender sender = new MessageSender(server, socket, currentUser);
+    private MessageSender sender;
 
     private static int index = 1;
 
@@ -54,6 +54,7 @@ public class ClientHandler implements Runnable {
             if (token.equals("CONNECT")) {
                 if (users.getUsers().contains(argument)) {
                    currentUser = argument;
+                   sender = new MessageSender(server, socket, currentUser);
                    StringBuilder result = new StringBuilder("ONLINE#" + currentUser);
 
                    users.addOnlineUsers(currentUser);
@@ -61,7 +62,7 @@ public class ClientHandler implements Runnable {
                        if (!user.equals(currentUser))
                            result.append(",").append(user);
                    });
-                   pw.println(result);
+                   sender.sendMessage((result));
                 }
             }
             else
