@@ -23,7 +23,7 @@ public class ChatServer {
         return allClientHandlers;
     }
 
-    private void startServer(int port) throws IOException {
+    public void startServer(int port) throws IOException {
         serverSocket = new ServerSocket(port);
         System.out.println("Server started, listening on " +port);
 

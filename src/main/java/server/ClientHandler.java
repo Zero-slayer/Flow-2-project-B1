@@ -100,11 +100,10 @@ public class ClientHandler implements Runnable {
         return true;
     }
 
-    private void handleClient(Socket socket) throws IOException {
+    private void handleClient() throws IOException {
         PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
         Scanner scanner = new Scanner(socket.getInputStream());
-        pw.println("You are now connected. Send a string to ...");
-
+//        pw.println("You are now connected. Send a string to ...");
         try {
             String message = "";
             boolean keepRunning = true;
@@ -122,7 +121,7 @@ public class ClientHandler implements Runnable {
     @Override
     public void run() {
         try {
-            handleClient(this.socket);
+            handleClient();
         } catch (IOException e) {
             e.printStackTrace();
         }
