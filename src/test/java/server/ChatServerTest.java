@@ -39,8 +39,11 @@ public class ChatServerTest {
         Scanner scanner = new Scanner(socket.getInputStream());
 
         pw.println("CONNECT#Lars");
-        assertEquals("ONLINE#Lars", scanner.nextLine());
-        pw.println("");
+        assertEquals("ONLINE#Lars,Luke,Rey", scanner.nextLine());
+        pw.println("SEND#Luke#Hello");
+        assertEquals("MESSAGE#Lars#Hello", scanner.nextLine());
+        pw.println("SEND#Doyle#Hello");
+        assertEquals("CLOSE#2", scanner.nextLine());
     }
 
 }

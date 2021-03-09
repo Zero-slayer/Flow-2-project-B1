@@ -3,6 +3,7 @@ package server;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class ClientHandler implements Runnable {
@@ -44,10 +45,12 @@ public class ClientHandler implements Runnable {
         String secondArg;
 
         if (parts.length == 1) {
-            if (parts[0].contains("CLOSE")) {
+            if (parts[0].equals("CLOSE")) {
                 pw.println("CLOSE#0");
-                return false;
+            } else {
+                pw.println("CLOSE#1");
             }
+            return false;
         }
         else if (parts.length == 2) {
             argument = parts[1];
@@ -63,11 +66,12 @@ public class ClientHandler implements Runnable {
                            result.append(",").append(user);
                    });
                    sender.sendMessage((result));
+                } else {
+                    pw.println("CLOSE#2");
+                    return false;
                 }
-            }
-            else
-            {
-                pw.println("CLOSE#2");
+            } else {
+                pw.println("CLOSE#1");
                 return false;
             }
         }
@@ -76,26 +80,39 @@ public class ClientHandler implements Runnable {
             secondArg = parts[2];
             String[] users = argument.split(",");
             if (token.equals("SEND")) {
+                System.out.println(users.length);
                 if (users.length == 1) {
                     if (users[0].equals("*")) {
                         //TODO send to all
                         sender.sendMessage(secondArg);
                     }
-                    else {
+                    else if (this.users.getOnlineUsers().contains(users[0])){
                         //TODO send to one person
                         sender.sendMessage(secondArg, users[0]);
+                    }
+                    else {
+                        pw.println("CLOSE#2");
+                        return false;
                     }
                 }
                 else if (users.length > 1) {
                     //TODO send to multiple
+                    if (this.users.getOnlineUsers().containsAll(Arrays.asList(users)))
                     sender.sendMessage(secondArg, users);
+                    else {
+                        pw.println("CLOSE#2");
+                        return false;
+                    }
                 }
-            }
-            else
+            } else
             {
-                pw.println("CLOSE#2");
+                pw.println("CLOSE#1");
                 return false;
             }
+        }
+        else if (parts.length > 3) {
+            pw.println("CLOSE#1");
+            return false;
         }
         return true;
     }
@@ -114,7 +131,7 @@ public class ClientHandler implements Runnable {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        pw.println("Connection is closing");
+//        System.out.println("Connection is closing: " + myId);
         socket.close();
     }
 
