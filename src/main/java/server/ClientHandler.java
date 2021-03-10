@@ -10,7 +10,7 @@ public class ClientHandler implements Runnable {
     private ChatServer server;
     private Socket socket;
     private String myId = "Name: ";
-    private String currentUser;
+    private String currentUser = "-1";
 
     private Users users;
     private MessageSender sender;
@@ -131,6 +131,7 @@ public class ClientHandler implements Runnable {
             e.printStackTrace();
         }
 //        System.out.println("Connection is closing: " + myId);
+        if(!this.currentUser.equals("-1"))
         users.removeOnlineUser(this.currentUser);
         socket.close();
     }
