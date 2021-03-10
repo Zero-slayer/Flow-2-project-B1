@@ -2,25 +2,39 @@ package server;
 
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 
+
 public class ChatServer {
 
     private ServerSocket serverSocket;
     private Map<String, ClientHandler> allClientHandlers = new ConcurrentHashMap<>();
-    private BlockingQueue<String> sendQueue = new ArrayBlockingQueue<>(8);
+    private BlockingQueue<Object> sendQueue = new ArrayBlockingQueue<>(8);
     private Users users = new Users();
 
     public Map<String, ClientHandler> getAllClientHandlers() {
         return allClientHandlers;
+    }
+
+    public void addToSendQueue(String message) {
+        try {
+            sendQueue.put(message);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void addToSendQueue(toSendUser input) {
+        try {
+            sendQueue.put(input);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     public void startServer(int port) throws IOException {
@@ -35,7 +49,7 @@ public class ChatServer {
             ClientHandler clientHandler = new ClientHandler(socket, this, users);
             allClientHandlers.put(clientHandler.getMyId(), clientHandler);
 
-//            new Thread(new SendToClients(this, ))
+            new Thread(new SendToClients(new MessageSender(this, socket), sendQueue)).start();
 
             new Thread(clientHandler).start();
         }

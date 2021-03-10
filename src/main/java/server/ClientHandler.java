@@ -11,9 +11,7 @@ public class ClientHandler implements Runnable {
     private Socket socket;
     private String myId = "Name: ";
     private String currentUser = "-1";
-
     private Users users;
-    private MessageSender sender;
 
     private static int index = 1;
 
@@ -37,6 +35,16 @@ public class ClientHandler implements Runnable {
         return this.currentUser;
     }
 
+    public String onlineListStatus() {
+        StringBuilder result = new StringBuilder("ONLINE#");
+        users.getUsers().forEach((user, isOnline) -> {
+            if (users.getOnlineUser(user))
+                result.append(user).append(",");
+        });
+        result.deleteCharAt(result.length() -1);
+        return String.valueOf(result);
+    }
+
     private boolean handleCommand(String msg, PrintWriter pw, Scanner scanner) {
         String[] parts = msg.split("#");
         String token = parts[0];
@@ -56,15 +64,8 @@ public class ClientHandler implements Runnable {
             if (token.equals("CONNECT")) {
                 if (!users.getOnlineUser(argument)) {
                    currentUser = argument;
-                   sender = new MessageSender(server, socket, currentUser);
-                   StringBuilder result = new StringBuilder("ONLINE#" + currentUser);
-
                    users.addOnlineUsers(currentUser);
-                   users.getUsers().forEach((user, isOnline) -> {
-                       if (!user.equals(currentUser) && (users.getOnlineUser(user) ))
-                           result.append(",").append(user);
-                   });
-                   sender.sendMessage((result));
+                   server.addToSendQueue(onlineListStatus());
                 } else {
                     pw.println("CLOSE#2");
                     return false;
@@ -79,13 +80,12 @@ public class ClientHandler implements Runnable {
             secondArg = parts[2];
             String[] users = argument.split(",");
             if (token.equals("SEND")) {
-                System.out.println(users.length);
                 if (users.length == 1) {
                     if (users[0].equals("*")) {
-                        sender.sendMessage(secondArg);
+                        server.addToSendQueue("MESSAGE#" + currentUser + "#" + secondArg);
                     }
                     else if (this.users.getOnlineUser(users[0])){
-                        sender.sendMessage(secondArg, users[0]);
+                        server.addToSendQueue(new toSendUser("MESSAGE#" + currentUser + "#" + secondArg, users[0]));
                     }
                     else {
                         pw.println("CLOSE#2");
@@ -96,9 +96,11 @@ public class ClientHandler implements Runnable {
                     boolean result = false;
                     for (String user: users) {
                         result = this.users.getOnlineUser(user);
+                        if (!result)
+                            break;
                     }
                     if (result)
-                        sender.sendMessage(secondArg, users);
+                        server.addToSendQueue(new toSendUser("MESSAGE#" + currentUser + "#" + secondArg, users));
                     else {
                     pw.println("CLOSE#2");
                     return false;
@@ -109,7 +111,7 @@ public class ClientHandler implements Runnable {
                 return false;
             }
         }
-        else if (parts.length > 3) {
+        else {
             pw.println("CLOSE#1");
             return false;
         }
@@ -131,8 +133,10 @@ public class ClientHandler implements Runnable {
             e.printStackTrace();
         }
 //        System.out.println("Connection is closing: " + myId);
-        if(!this.currentUser.equals("-1"))
-        users.removeOnlineUser(this.currentUser);
+        if(!this.currentUser.equals("-1")) {
+            users.removeOnlineUser(this.currentUser);
+            server.addToSendQueue(onlineListStatus());
+        }
         socket.close();
     }
 
