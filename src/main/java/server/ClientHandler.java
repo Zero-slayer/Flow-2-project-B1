@@ -3,7 +3,6 @@ package server;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class ClientHandler implements Runnable {
@@ -55,14 +54,14 @@ public class ClientHandler implements Runnable {
         else if (parts.length == 2) {
             argument = parts[1];
             if (token.equals("CONNECT")) {
-                if (users.getUsers().contains(argument)) {
+                if (!users.getOnlineUser(argument)) {
                    currentUser = argument;
                    sender = new MessageSender(server, socket, currentUser);
                    StringBuilder result = new StringBuilder("ONLINE#" + currentUser);
 
                    users.addOnlineUsers(currentUser);
-                   users.getOnlineUsers().forEach((user) -> {
-                       if (!user.equals(currentUser))
+                   users.getUsers().forEach((user, isOnline) -> {
+                       if (!user.equals(currentUser) && (users.getOnlineUser(user) ))
                            result.append(",").append(user);
                    });
                    sender.sendMessage((result));
@@ -83,11 +82,9 @@ public class ClientHandler implements Runnable {
                 System.out.println(users.length);
                 if (users.length == 1) {
                     if (users[0].equals("*")) {
-                        //TODO send to all
                         sender.sendMessage(secondArg);
                     }
-                    else if (this.users.getOnlineUsers().contains(users[0])){
-                        //TODO send to one person
+                    else if (this.users.getOnlineUser(users[0])){
                         sender.sendMessage(secondArg, users[0]);
                     }
                     else {
@@ -96,16 +93,18 @@ public class ClientHandler implements Runnable {
                     }
                 }
                 else if (users.length > 1) {
-                    //TODO send to multiple
-                    if (this.users.getOnlineUsers().containsAll(Arrays.asList(users)))
-                    sender.sendMessage(secondArg, users);
+                    boolean result = false;
+                    for (String user: users) {
+                        result = this.users.getOnlineUser(user);
+                    }
+                    if (result)
+                        sender.sendMessage(secondArg, users);
                     else {
-                        pw.println("CLOSE#2");
-                        return false;
+                    pw.println("CLOSE#2");
+                    return false;
                     }
                 }
-            } else
-            {
+            } else {
                 pw.println("CLOSE#1");
                 return false;
             }
@@ -132,6 +131,7 @@ public class ClientHandler implements Runnable {
             e.printStackTrace();
         }
 //        System.out.println("Connection is closing: " + myId);
+        users.removeOnlineUser(this.currentUser);
         socket.close();
     }
 
