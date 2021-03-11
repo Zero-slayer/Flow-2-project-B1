@@ -49,7 +49,7 @@ public class ChatServer {
             ClientHandler clientHandler = new ClientHandler(socket, this, users);
             allClientHandlers.put(clientHandler.getMyId(), clientHandler);
 
-            new Thread(new SendToClients(new MessageSender(this, socket), sendQueue)).start();
+            new Thread(new SendToClients(new MessageSender(this), sendQueue)).start();
 
             new Thread(clientHandler).start();
         }
@@ -72,6 +72,4 @@ public class ChatServer {
         server.startServer(port);
 
     }
-
-
 }

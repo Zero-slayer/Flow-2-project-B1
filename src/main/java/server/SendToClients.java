@@ -24,8 +24,6 @@ public class SendToClients implements Runnable {
                 } else if (o instanceof toSendUser){
                     if (((toSendUser) o).getMulti() != null)
                         messageSender.sendMessage(((toSendUser) o).getMessage(), ((toSendUser) o).getMulti());
-                    else if (((toSendUser) o).getUser() != null)
-                        messageSender.sendMessage(((toSendUser) o).getMessage(), ((toSendUser) o).user);
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();

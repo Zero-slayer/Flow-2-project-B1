@@ -2,13 +2,8 @@ package server;
 
 public class toSendUser {
 
-    String message, user;
+    String message;
     String[] multi;
-
-    public toSendUser(String message, String user){
-       this.message = message;
-       this.user = user;
-    }
 
     public toSendUser(String message, String[] multi) {
        this.message = message;
@@ -17,10 +12,6 @@ public class toSendUser {
 
     public String getMessage() {
         return message;
-    }
-
-    public String getUser() {
-        return user;
     }
 
     public String[] getMulti() {

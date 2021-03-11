@@ -20,6 +20,8 @@ public class Users {
     }
 
     public boolean getOnlineUser(String user) {
+        if (users.get(user) == null)
+            return true;
         return users.get(user);
     }
 

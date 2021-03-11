@@ -85,7 +85,8 @@ public class ClientHandler implements Runnable {
                         server.addToSendQueue("MESSAGE#" + currentUser + "#" + secondArg);
                     }
                     else if (this.users.getOnlineUser(users[0])){
-                        server.addToSendQueue(new toSendUser("MESSAGE#" + currentUser + "#" + secondArg, users[0]));
+                        String[] currentUserPlusUsers = {currentUser, users[0]};
+                        server.addToSendQueue(new toSendUser("MESSAGE#" + currentUser + "#" + secondArg, currentUserPlusUsers));
                     }
                     else {
                         pw.println("CLOSE#2");
@@ -99,8 +100,13 @@ public class ClientHandler implements Runnable {
                         if (!result)
                             break;
                     }
-                    if (result)
-                        server.addToSendQueue(new toSendUser("MESSAGE#" + currentUser + "#" + secondArg, users));
+                    if (result) {
+                        String[] currentUserPlusUsers = new String[users.length + 1];
+                        currentUserPlusUsers[0] = currentUser;
+                        for (int i = 1; i < currentUserPlusUsers.length ; i++)
+                            currentUserPlusUsers[i] = users[i - 1];
+                        server.addToSendQueue(new toSendUser("MESSAGE#" + currentUser + "#" + secondArg, currentUserPlusUsers));
+                    }
                     else {
                     pw.println("CLOSE#2");
                     return false;
