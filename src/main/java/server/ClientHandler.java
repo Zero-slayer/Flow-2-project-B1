@@ -7,11 +7,11 @@ import java.util.Scanner;
 
 public class ClientHandler implements Runnable {
 
-    private ChatServer server;
-    private Socket socket;
+    private final ChatServer server;
+    private final Socket socket;
     private String myId = "Name: ";
     private String currentUser = "-1";
-    private Users users;
+    private final Users users;
 
     private static int index = 1;
 
@@ -45,7 +45,7 @@ public class ClientHandler implements Runnable {
         return String.valueOf(result);
     }
 
-    private boolean handleCommand(String msg, PrintWriter pw, Scanner scanner) {
+    private boolean handleCommand(String msg, PrintWriter pw) {
         String[] parts = msg.split("#");
         String token = parts[0];
         String argument;
@@ -127,18 +127,16 @@ public class ClientHandler implements Runnable {
     private void handleClient() throws IOException {
         PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
         Scanner scanner = new Scanner(socket.getInputStream());
-//        pw.println("You are now connected. Send a string to ...");
         try {
             String message = "";
             boolean keepRunning = true;
             while (keepRunning) {
                 message = scanner.nextLine();
-                keepRunning = handleCommand(message, pw, scanner);
+                keepRunning = handleCommand(message, pw);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-//        System.out.println("Connection is closing: " + myId);
         if(!this.currentUser.equals("-1")) {
             users.removeOnlineUser(this.currentUser);
             server.addToSendQueue(onlineListStatus());

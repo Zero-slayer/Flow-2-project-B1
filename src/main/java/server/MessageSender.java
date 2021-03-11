@@ -14,7 +14,6 @@ public class MessageSender implements Message{
 
     @Override
     public void sendMessage(String message) {
-       //TODO search through all users and send the message
         server.getAllClientHandlers().forEach((ID, ClientHandler) -> {
             try {
                 if (!ClientHandler.getSocket().isClosed())
@@ -29,7 +28,6 @@ public class MessageSender implements Message{
 
     @Override
     public void sendMessage(String message, String[] users) {
-       //TODO print message to sender and receivers
         System.out.println(Arrays.toString(users));
         server.getAllClientHandlers().forEach((ID, ClientHandler) -> {
             try {

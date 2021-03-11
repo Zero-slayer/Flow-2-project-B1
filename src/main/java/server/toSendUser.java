@@ -3,18 +3,18 @@ package server;
 public class toSendUser {
 
     String message;
-    String[] multi;
+    String[] oneOrMoreUsers;
 
     public toSendUser(String message, String[] multi) {
        this.message = message;
-       this.multi = multi;
+       this.oneOrMoreUsers = multi;
     }
 
     public String getMessage() {
         return message;
     }
 
-    public String[] getMulti() {
-        return multi;
+    public String[] getOneOrMoreUsers() {
+        return oneOrMoreUsers;
     }
 }

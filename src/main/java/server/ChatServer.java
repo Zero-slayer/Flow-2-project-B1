@@ -15,7 +15,7 @@ public class ChatServer {
     private ServerSocket serverSocket;
     private Map<String, ClientHandler> allClientHandlers = new ConcurrentHashMap<>();
     private BlockingQueue<Object> sendQueue = new ArrayBlockingQueue<>(8);
-    private Users users = new Users();
+    private final Users users = new Users();
 
     public Map<String, ClientHandler> getAllClientHandlers() {
         return allClientHandlers;
