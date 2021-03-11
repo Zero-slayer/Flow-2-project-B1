@@ -9,19 +9,18 @@ public class Client {
 
     Socket socket;
     PrintWriter pw;
-    Scanner scanner;
 
-    public void connect(String adresse, int port) throws IOException {
-        socket = new Socket(adresse,port);
-        pw = new PrintWriter(socket.getOutputStream(),true);
-        scanner = new Scanner(socket.getInputStream());
+    public void connect(String address, int port) throws IOException {
+        socket = new Socket(address, port);
+        pw = new PrintWriter(socket.getOutputStream(), true);
 
-        Scanner keyBoard = new Scanner(System.in);
-        Boolean keepRunning = true;
-        while (keepRunning){
-            String msgToSend = keyBoard.nextLine();
+        new Thread (new ServerReader(socket.getInputStream())).start();
+
+        Scanner keyboard = new Scanner(System.in);
+        boolean keepRunning = true;
+        while (keepRunning) {
+            String msgToSend = keyboard.nextLine(); //Blocking call
             pw.println(msgToSend);
-            System.out.println(scanner.nextLine());
             if (msgToSend.equals("CLOSE#")) {
                 keepRunning = false;
             }
@@ -30,6 +29,22 @@ public class Client {
     }
 
     public static void main(String[] args) throws IOException {
-        new Client().connect("localhost", 8088);
+
+        int DEFAULT_PORT =  8080;
+        String DEFAULT_SERVER_IP = " 206.81.26.43";
+        int port = DEFAULT_PORT;
+        String ip = DEFAULT_SERVER_IP;
+
+        if (args.length == 2) {
+            try {
+                ip = args[0];
+                port = Integer.parseInt(args[1]);
+            } catch (NumberFormatException e){
+                System.out.println("Invalid port or ip, using default ports");
+            }
+        }
+
+        new Client().connect(ip, port);
+
     }
 }
